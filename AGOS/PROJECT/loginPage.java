@@ -1,5 +1,6 @@
+package AGOS.PROJECT;
 
-import javax.swing.*;
+import javax.swing.*; 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.EmptyBorder;
@@ -178,6 +179,7 @@ class LogInFrame extends JFrame {
                 if (strUsername.equals(strCorrectUsername) && strPassword.equals(strCorrectPassword)) {
                     JOptionPane.showMessageDialog(null, "You have successfully logged in!", "Log-In", JOptionPane.INFORMATION_MESSAGE);
                     new adminDB();
+                    dispose();
                 } else {
                     JOptionPane.showMessageDialog(null, "You have entered an incorrect account!", "Log-in Error", JOptionPane.ERROR_MESSAGE);
                 }

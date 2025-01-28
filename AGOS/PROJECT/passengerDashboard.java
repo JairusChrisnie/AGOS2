@@ -1,4 +1,4 @@
-//import package.agos_Project;
+package AGOS.PROJECT;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
