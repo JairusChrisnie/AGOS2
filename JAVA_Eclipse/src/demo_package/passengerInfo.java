@@ -105,6 +105,9 @@ public class passengerInfo extends JFrame {
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setBounds(233, 318, 85, 21);
+		btnCancel.addActionListener(e->{
+			dispose();
+		});
 		contentPane.add(btnCancel);
 		
 		setVisible(true);
