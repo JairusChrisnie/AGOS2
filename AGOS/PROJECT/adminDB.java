@@ -577,8 +577,7 @@ public class adminDB extends JFrame implements ActionListener {
         } else if (e.getSource() == logoutButton) {
             int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Logout", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                //saveData(); // Save data before exiting
-            	new loginPage();
+                new titleFrame();
                 dispose(); // Close the dashboard
                 //new LoginFrame(); // Replace LoginFrame with your actual login class
             }
