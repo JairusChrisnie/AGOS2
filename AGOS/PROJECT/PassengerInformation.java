@@ -173,7 +173,6 @@ public class PassengerInformation extends JFrame {
 
 	public void getPassengerData() {
 	    String getName = txtName.getText();
-	    String getAge = "";
 	    int intAge = Integer.parseInt(txtAge.getText());
 	    
 	    try {
@@ -185,7 +184,7 @@ public class PassengerInformation extends JFrame {
 	    	return; 
 	    }
 	    
-	    getAge = "" + intAge;
+	    String getAge = "" + intAge;
 	    
 	    // Determine gender based on the selected radio button
 	    String getGender = ""; 
