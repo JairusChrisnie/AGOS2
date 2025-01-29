@@ -115,6 +115,21 @@ The project managers thank the future developers who continue to improve this pr
 
 This project is licensed under the MIT License - see the [MIT LICENSE](https://github.com/JairusChrisnie/AGOS2/blob/master/MIT%20License.txt) file for details.
 
+## Acknowledgement
+
+**Prof. Chris Piamonte**: Special thanks to our professor for their guidance, advice, and support throughout the development of this project. The developers of this project would forever cherish the lessons — both academic and life lessons — that they have imparted throughout the semester.
+
+**Members of Abstractly Yours, ANJYLC**: This project would not have been possible without the continuous effort and collaboration of each member:
+- **Yvan Raphael C. Bombola**: Lead Developer
+- **Nethan Edry L. Gragas**: Co-Lead Developer
+- **Jairus Chrisnie R. Rimon**: Developer
+- **John Paul T. Tamares**: Developer
+- **Alliza Leira L. Lasac**: Documentation
+- **Kristina Casandra C. Nagera**: Documentation
+
+With countless late nights and tireless endeavours, the team worked hard to ensure the successful completion of this project.
+
+
 ![image](https://github.com/user-attachments/assets/ec826ba1-2acd-413b-a659-33fa33ff78fb)
 
 
