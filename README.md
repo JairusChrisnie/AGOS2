@@ -1,5 +1,5 @@
 
-# ![Logo](path-to-your-logo.png)  AGOS: A PUP Ferry Terminal Information Management
+# ![Logo](https://github.com/JairusChrisnie/AGOS2/blob/master/agosLogo.png?raw=true)  AGOS: A PUP Ferry Terminal Information Management
 
 ## Description 
 **Project AGOS** is a PUP Ferry Terminal Information Management designed to offer centralized and organized information about the ferry’s scheduled trips while implementing the concept of **Abstraction** in Object-Oriented Programming (OOP). This system aims to provide necessary details that will be beneficial for both the **passengers** and the **ferry’s operators**.
