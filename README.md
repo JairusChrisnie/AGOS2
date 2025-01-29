@@ -81,7 +81,7 @@ The **Pasig Ferry Information System** is a desktop application designed to stre
 3. **Passenger Access**  
    - Click the **Passenger** button on the welcome screen to view schedules and station info.  
 
-![Admin Dashboard Preview](screenshots/admin-dashboard.png) *Replace with actual screenshot*  
+![Admin Dashboard Preview](https://github.com/JairusChrisnie/AGOS2/blob/master/adminView.png?raw=true) 
 
 ---
 
