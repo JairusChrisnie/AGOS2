@@ -76,7 +76,7 @@ The admin can modify the information in existing rows, such as editing the ETA, 
 #### **Add Passenger**
 Upon clicking, an information panel will appear. The admin can now proceed to input passenger information.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminLogOut.png?raw=true)
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerAddInfo.png?raw=true)
 
 ### **Logout**
 Once the admin has finalized the schedule, they can log out of the system.  
