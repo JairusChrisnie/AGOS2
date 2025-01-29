@@ -77,6 +77,8 @@ public class adminDB extends JFrame implements ActionListener{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize the frame
+        ImageIcon imgLOGO = new ImageIcon("agosLogo.png");
+        setIconImage(imgLOGO.getImage());
 
   
         mainPanel = new JPanel();

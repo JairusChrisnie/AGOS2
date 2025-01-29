@@ -39,6 +39,9 @@ public class PassengerInformation extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
+		ImageIcon imgLOGO = new ImageIcon("agosLogo.png");
+        setIconImage(imgLOGO.getImage());
+		
 		JLabel lblNewLabel = new JLabel("Passenger Information");
 		lblNewLabel.setFont(new Font("Century Gothic", Font.BOLD, 28));
 		lblNewLabel.setBounds(84, 29, 322, 63);
