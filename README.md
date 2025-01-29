@@ -87,7 +87,7 @@ Once the admin has finalized the schedule, they can log out of the system.
 By clicking the **‘Passenger’** button, the passenger can immediately access the current schedule.  
 Other than the **‘Schedule’**, the passenger also has two other options:  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerHelp.png?raw=true)
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerView.png?raw=true)
 
 ### **Stations** 
 The passenger can acquire a **map** of the Pasig River, complete with each ferry station and the landmarks near them.  
