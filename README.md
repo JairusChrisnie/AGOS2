@@ -51,3 +51,27 @@ Upon clicking, an information panel will appear. The admin can now proceed to in
 Once the admin has finalized the schedule, they can log out of the system.  
 
 ![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminLogOut.png?raw=true)
+
+## **Passenger**
+By clicking the **‘Passenger’** button, the passenger can immediately access the current schedule.  
+Other than the **‘Schedule’**, the passenger also has two other options:  
+
+### **Stations** 
+The passenger can acquire a **map** of the Pasig River, complete with each ferry station and the landmarks near them.  
+
+#### **Help**
+The passenger is given help and contact information for any **inquiries/emergencies**. Information about the Pasig River Ferry Service is also provided.
+
+## Contributing
+
+Contributions from the community are always welcome! To contribute, follow these instructions:
+
+1. **Fork the repository** – This creates a personal copy of the code on your own GitHub account for development.
+2. **Create a new branch** – This ensures that adding new features or codes won’t conflict with the main codebase.
+3. **Make the fix/Add the feature** – Implement your changes and commit them with messages.
+4. **Push to the branch** – Upload your changes to your forked repository.
+5. **Submit a pull request** – This makes a request to the project managers for merging your forked repository to the main repository for review.
+
+The project managers thank the future developers who continue to improve this project!
+
+
