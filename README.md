@@ -111,4 +111,12 @@ Contributions from the community are always welcome! To contribute, follow these
 
 The project managers thank the future developers who continue to improve this project!
 
+## License
+
+This project is licensed under the MIT License - see the [MIT LICENSE](https://github.com/JairusChrisnie/AGOS2/blob/master/MIT%20License.txt) file for details.
+
+
+
+
+
 
