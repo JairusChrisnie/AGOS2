@@ -53,6 +53,7 @@ The **Pasig Ferry Information System** is a desktop application designed to stre
 2. **Set Up the Database**  
    - Create a MySQL database named `ferryDB`.  
    - Run the provided SQL script (`ferry_schema.sql`) to create tables.  
+      [Download Schema](schema.sql)
 
 3. **Configure Database Credentials**  
    Update the JDBC connection details in:  
