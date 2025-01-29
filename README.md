@@ -128,7 +128,7 @@ With countless late nights and tireless endeavours, the team worked hard to ensu
 ---
 
 **Contact**  
-For questions or support, email: [your-email@example.com](mailto:your-email@example.com)  
+For questions or support, email: cassienagera@gmail.com , nethanedrygragas@gmail.com , johnpaultamares08@gmail.com , jairuschrisnierimon@gmail.com , allizalasac2304@gmail.com , yvanraphaelbombola7@gmail.com
 ``` 
 
 
