@@ -5,6 +5,36 @@
 ## Description 
 **Project AGOS** is a PUP Ferry Terminal Information Management designed to offer centralized and organized information about the ferry’s scheduled trips while implementing the concept of **Abstraction** in Object-Oriented Programming (OOP). This system aims to provide necessary details that will be beneficial for both the **passengers** and the **ferry’s operators**.
 
+## Installation Instructions
+
+### Prerequisite
+Here are the following programs you’ll need to run the program:
+
+- **Java Development Kit (JDK)**  
+  [Download JDK](https://www.oracle.com/ph/java/technologies/downloads/)
+  
+- **Visual Studio Code (VS Code)**  
+  With Java Extensions installed  
+  [Download VS Code](https://code.visualstudio.com/download)
+
+- **Eclipse**  
+  [Download Eclipse](https://www.eclipse.org/downloads/)
+
+After making sure the mentioned software is installed, you can now proceed to running the code. 
+
+### Using VS Code
+To use VS Code to run the program, follow the steps below:
+1. Clone the repository from GitHub.
+2. Open VS Code and load the project folder.
+3. You can use either of the two main ways to run the program:
+   - **Using the terminal**:  
+     Once the terminal is open, compile the Java files using `javac`.  
+     Run the application afterwards.
+   - **Using the Run and Debug button**:  
+     Click the **Run and Debug** button to run the program directly in VS Code.
+
+### Using Eclipse
+If you are using Eclipse, follow these steps to run the program:
 
 ## Usage
 
@@ -46,7 +76,7 @@ The admin can modify the information in existing rows, such as editing the ETA, 
 #### **Add Passenger**
 Upon clicking, an information panel will appear. The admin can now proceed to input passenger information.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminLogOut.png?raw=true)
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerAddInfo.png?raw=true)
 
 ### **Logout**
 Once the admin has finalized the schedule, they can log out of the system.  
@@ -57,7 +87,7 @@ Once the admin has finalized the schedule, they can log out of the system.
 By clicking the **‘Passenger’** button, the passenger can immediately access the current schedule.  
 Other than the **‘Schedule’**, the passenger also has two other options:  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerHelp.png?raw=true)
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerSched.png?raw=true)
 
 ### **Stations** 
 The passenger can acquire a **map** of the Pasig River, complete with each ferry station and the landmarks near them.  
@@ -80,5 +110,16 @@ Contributions from the community are always welcome! To contribute, follow these
 5. **Submit a pull request** – This makes a request to the project managers for merging your forked repository to the main repository for review.
 
 The project managers thank the future developers who continue to improve this project!
+
+## License
+
+This project is licensed under the MIT License - see the [MIT LICENSE](https://github.com/JairusChrisnie/AGOS2/blob/master/MIT%20License.txt) file for details.
+
+![image](https://github.com/user-attachments/assets/ec826ba1-2acd-413b-a659-33fa33ff78fb)
+
+
+
+
+
 
 
