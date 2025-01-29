@@ -180,8 +180,8 @@ public class PassengerInformation extends JFrame {
 	    	if(intAge <= 0) {
 	    		throw new NumberFormatException();
 	    	}
-	    } catch (NumberFormatException e) {
-	    	JOptionPane.showMessageDialog(this, "Input Error", "Input Error", JOptionPane.ERROR_MESSAGE); 
+	    } catch (Exception e) {
+	    	JOptionPane.showMessageDialog(this, "Please input a proper age.", "Input Error", JOptionPane.ERROR_MESSAGE); 
 	    	return; 
 	    }
 	    
@@ -199,6 +199,10 @@ public class PassengerInformation extends JFrame {
 	    
 	    String getAddress = txtAddress.getText();
 	    String getContact = txtContact.getText();
+	    if(!getContact.matches("\\d{11}")) {
+	    	JOptionPane.showMessageDialog(this, "Please input 11 digits.", "Input Error", JOptionPane.ERROR_MESSAGE);
+	    	return;
+	    }
 	    String getLocation = (String) cmbLocation.getSelectedItem();
 
 	    mtdSavePassengerData(strTripID, getName, getAge, getGender, getAddress, getContact, getLocation);
