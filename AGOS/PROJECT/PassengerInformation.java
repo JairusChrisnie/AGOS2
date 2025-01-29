@@ -1,26 +1,17 @@
 package AGOS.PROJECT;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.border.*;
 
 import java.awt.Font;
-import javax.swing.JTextField;
-import javax.swing.JRadioButton;
-import javax.swing.JComboBox;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.awt.event.ActionEvent;
 
 public class PassengerInformation extends JFrame {
 
@@ -32,7 +23,6 @@ public class PassengerInformation extends JFrame {
 	private JTextField txtContact;
 	private ButtonGroup genderButton;
 	private String strTripID;
-	
 	JComboBox<String>  cmbLocation;
 	private JRadioButton rdbtnMale;
 	private JRadioButton rdbtnFemale;
@@ -40,7 +30,7 @@ public class PassengerInformation extends JFrame {
 	
 	public PassengerInformation(String strTripID) {
 		this.strTripID = strTripID;
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 484, 514);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -125,21 +115,28 @@ public class PassengerInformation extends JFrame {
 		genderButton.add(rdbtnFemale);
 		genderButton.add(rdbtnOthers);
 		
-		
-		
 		String[] arrRoute = {"Select Destination", "Quinta", "Lawton", "Escolta", "Sta. Ana", "Lambingan", "Valenzuela", "Hulo", "Guadalupe", "San Joaquin", "Kalawaan"};
 		cmbLocation = new JComboBox<>(arrRoute);
 		cmbLocation.setBounds(151,310,217,27);
 		contentPane.add(cmbLocation);
-;			
+			
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
 				if(e.getSource()== btnSave) {
-					getPassengerData();
+					//Check if combo box is equals to the first combo box
+					String strDestination = (String) cmbLocation.getSelectedItem();
+					
+					if("Select Destination".equals(strDestination)) {
+						JOptionPane.showMessageDialog(null, "Please select a proper destination.", "ERROR!", JOptionPane.ERROR_MESSAGE);
+					}
+					else {
+						getPassengerData();
+					}
 				}
 			}
 		});
+        
 		btnSave.setFont(new Font("Century Gothic", Font.BOLD, 16));
 		btnSave.setBounds(113, 378, 107, 29);
 		contentPane.add(btnSave);
@@ -162,7 +159,6 @@ public class PassengerInformation extends JFrame {
 	    txtAddress.setText(strAddress);
 	    txtContact.setText(strContact);
 
-	    // Initialize cmbLocation only if null
 	    if (cmbLocation == null) {
 	        String[] arrLocation = {"Select Destination", "Pinagbuhatan", "San Joaquin", "Maybunga", "Kalawaan", "Guadalupe", "Valenzuela", "Hulo",
 	                                "Lambingan", "Sta. Ana", "PUP", "Lawton", "Escolta", "Quinta"};
@@ -173,6 +169,7 @@ public class PassengerInformation extends JFrame {
 
 	public void getPassengerData() {
 	    String getName = txtName.getText();
+	    String getAge = "";
 	    int intAge = Integer.parseInt(txtAge.getText());
 	    
 	    try {
@@ -184,9 +181,8 @@ public class PassengerInformation extends JFrame {
 	    	return; 
 	    }
 	    
-	    String getAge = "" + intAge;
+	    getAge = "" + intAge;
 	    
-	    // Determine gender based on the selected radio button
 	    String getGender = ""; 
 	    if (rdbtnMale.isSelected()) {
 	        getGender = "Male";
@@ -216,10 +212,10 @@ public class PassengerInformation extends JFrame {
 			try(PreparedStatement insertStmt = con.prepareStatement(query)){
 				insertStmt.setString(1, strTripID);
 				insertStmt.setString(2, getName);
-				insertStmt.setString(3,  getAge);
+				insertStmt.setString(3, getAge);
 				insertStmt.setString(4, getGender);
-				insertStmt.setString(5,  getContact);
-				insertStmt.setString(6,  getAddress);
+				insertStmt.setString(5, getAddress);
+				insertStmt.setString(6, getContact);
 				insertStmt.setString(7, getLocation);
 				
 				insertStmt.executeUpdate();

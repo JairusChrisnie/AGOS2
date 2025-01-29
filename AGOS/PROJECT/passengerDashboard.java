@@ -3,6 +3,7 @@ package AGOS.PROJECT;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 public class passengerDashboard extends JFrame implements ActionListener {
-
+    // Components for the Passenger Dashboard
     private JPanel mainPanel, headerPanel, sidebarPanel, contentPanel;
     private JButton scheduleButton, ferryStationButton, routeMapButton, helpButton;
     private JLabel logoLabel, titleLabel;
@@ -36,26 +37,26 @@ public class passengerDashboard extends JFrame implements ActionListener {
     private final Color COLOR_6 = new Color(78, 128, 193); // #4e80c1
     private final Color COLOR_7 = new Color(151, 180, 220); // #97b4dc
     
+    private ScheduleManager scheduleManager;
 
     public passengerDashboard() {
         
+        tableModel = new DefaultTableModel(data, columnNames);
+
         ImageIcon imgLOGO = new ImageIcon("agosLogo.png");
         setIconImage(imgLOGO.getImage());
-    
-        // Frame setup
+
         setTitle("Passenger Dashboard - Pasig Ferry Information System");
         setSize(1100, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize the frame
 
-        // Main Panel
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(COLOR_4);
         add(mainPanel, BorderLayout.CENTER);
 
-        // Header Panel
         headerPanel = new JPanel();
         headerPanel.setBackground(COLOR_4);
         headerPanel.setPreferredSize(new Dimension(1000, 150));
@@ -97,21 +98,18 @@ public class passengerDashboard extends JFrame implements ActionListener {
         Image imgBoat = boat.getImage().getScaledInstance(640, 360, Image.SCALE_SMOOTH);
         boatL.setIcon(new ImageIcon(imgBoat));
 
-        // Sidebar Panel
         sidebarPanel = new JPanel();
         sidebarPanel.setBackground(COLOR_1);
         sidebarPanel.setPreferredSize(new Dimension(150, 60));
-        sidebarPanel.setLayout(new BorderLayout(10, 10)); // Use BorderLayout for sidebar
+        sidebarPanel.setLayout(new BorderLayout(10, 10));
         mainPanel.add(sidebarPanel, BorderLayout.WEST);
 
-        // Buttons for sidebar
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(COLOR_1);
-        buttonPanel.setLayout(new GridLayout(6, 1, 0, 6)); // 2 rows for buttons
-        //buttonPanel.setPreferredSize(new Dimension(200, 500)); // size for sidebar buttons
-        
+        buttonPanel.setLayout(new GridLayout(6, 1, 0, 6)); 
+
         scheduleButton = createSidebarButton("Schedule");
-        scheduleButton.setBackground(COLOR_2); // Highlight the default button
+        scheduleButton.setBackground(COLOR_2); 
         ferryStationButton = createSidebarButton("Stations");
         ferryStationButton.setBackground(COLOR_6);
         helpButton = createSidebarButton("Help");
@@ -122,30 +120,55 @@ public class passengerDashboard extends JFrame implements ActionListener {
 
         sidebarPanel.add(buttonPanel, BorderLayout.CENTER);
         
-        // Content Panel
         contentPanel = new JPanel();
         contentPanel.setBackground(COLOR_1);
         contentPanel.setLayout(new BorderLayout());
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        // Initialize the table model
-        tableModel = new DefaultTableModel(data, columnNames) {
+        scheduleManager = new ScheduleManager() {
+        @Override
+        public void loadDataFromDB() {
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+
+                String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";
+                PreparedStatement stmt = con.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getString("Trip ID"),
+                        rs.getString("Body No."),
+                        rs.getString("Route"),
+                        rs.getString("Location"),
+                        rs.getString("ETA"),
+                        rs.getString("Seats Available"),
+                        rs.getString("Status")
+                    };
+                tableModel.addRow(row);
+                }
+
+                con.close();
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+            public void saveDataToDB(DefaultTableModel tableModel) {
+                throw new UnsupportedOperationException("Not supported yet.");
             }
         };
 
-        // Default content (Schedule Preview)
-        showScheduleView();
-        
         mtdLoadDataFromDB();
-
-        // Make the frame visible
+        scheduleManager.showSchedulePreview(contentPanel);
+        showScheduleView();
         setVisible(true);
-    }
 
-    // Method to create styled sidebar buttons
+    }
+    
     private JButton createSidebarButton(String text) {
         JButton button = new JButton(text);
         button.setBackground(COLOR_5);
@@ -153,12 +176,11 @@ public class passengerDashboard extends JFrame implements ActionListener {
         button.setFont(new Font("Century Gothic", Font.BOLD, 20));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
-        button.setPreferredSize(new Dimension(200, 55)); // size for sidebar buttons
+        button.setPreferredSize(new Dimension(200, 55));
         button.addActionListener(this);
         return button;
     }
-
-    // Method to show Schedule 
+ 
     private void showScheduleView() {
         contentPanel.removeAll();
 
@@ -181,17 +203,13 @@ public class passengerDashboard extends JFrame implements ActionListener {
         scheduleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         scheduleLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        // Panel behind the schedule with an outline
         JPanel tablePanel = new JPanel();
         tablePanel.setBackground(COLOR_6);
         tablePanel.setBorder(BorderFactory.createLineBorder(COLOR_2, 40));
         tablePanel.setLayout(new BorderLayout());
-
         tablePanel.add(scheduleLabel, BorderLayout.NORTH);
-
         contentPanel.add(greetingPanel, BorderLayout.NORTH);
 
-        // Display the table
         detailsTable = new JTable(tableModel);
         detailsTable.setFont(new Font("Century Gothic", Font.PLAIN, 14));
         detailsTable.setBackground(COLOR_1);
@@ -201,29 +219,24 @@ public class passengerDashboard extends JFrame implements ActionListener {
         tableHeader.setFont(new Font("Century Gothic", Font.BOLD, 16));
         tableHeader.setPreferredSize(new Dimension(100, 30));
 
-        // Center text in table cells
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < detailsTable.getColumnCount(); i++) {
             detailsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // Disable row reordering
         detailsTable.getTableHeader().setReorderingAllowed(false);
 
-        // Disable editing in Schedule Preview
-        detailsTable.setEnabled(false); // Disable interaction entirely
+        detailsTable.setEnabled(false); 
 
         JScrollPane tableScrollPane = new JScrollPane(detailsTable);
         tablePanel.add(tableScrollPane, BorderLayout.CENTER);
 
         contentPanel.add(tablePanel, BorderLayout.CENTER);
-
         contentPanel.revalidate();
         contentPanel.repaint();
     }
 
-    //Method to show Ferry Stations
     private void showFerryStations() {
         contentPanel.removeAll();
         JLabel stationsLabel = new JLabel(" F e r r y  S t a t i o n s");
@@ -232,14 +245,12 @@ public class passengerDashboard extends JFrame implements ActionListener {
         stationsLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         stationsLabel.setHorizontalAlignment(JLabel.LEFT);
 
-        // Panel behind the stations with an outline
         JPanel tablePanel = new JPanel();
         tablePanel.setBackground(COLOR_6);
         tablePanel.setBorder(BorderFactory.createLineBorder(COLOR_6, 40));
         tablePanel.setLayout(new BorderLayout());
         tablePanel.add(stationsLabel, BorderLayout.NORTH);
 
-        // Display the Picture
         ImageIcon stations = new ImageIcon("image.png");
         JLabel stationsL = new JLabel();
         stationsL.setBounds(15, -30, 200, 200);
@@ -257,7 +268,6 @@ public class passengerDashboard extends JFrame implements ActionListener {
         
     }
 
-    //Method to show Help
     private void showHelp() {        
         contentPanel.removeAll();
         JPanel helpPanel = new JPanel();
@@ -276,19 +286,16 @@ public class passengerDashboard extends JFrame implements ActionListener {
         whitePanel2.setBounds(75, 180, 450, 400);
         helpPanel.add(whitePanel2);
 
-        // Adding the image to the helpPanel
-        ImageIcon imageIcon = new ImageIcon("wiggy.png"); // Replace with your image file path
+        ImageIcon imageIcon = new ImageIcon("wiggy.png"); 
         JLabel imageLabel = new JLabel(imageIcon);
-        imageLabel.setBounds(0, 625, 1400, 50); // Adjust the position and size
+        imageLabel.setBounds(0, 625, 1400, 50);
         helpPanel.add(imageLabel);
         
-        // Help title label
         JLabel helpLabel = new JLabel("Help & Contact Information");
         helpLabel.setFont(new Font("Glacial Indifference", Font.BOLD, 24));
         helpLabel.setForeground(COLOR_4);
         helpLabel.setBounds(50, 20, 400, 30);
         
-        // MMDA Hotline section
         JLabel mmdaLabel = new JLabel("MMDA Hotline:");
         mmdaLabel.setFont(new Font("Arimo", Font.BOLD, 18));
         mmdaLabel.setForeground(COLOR_4);
@@ -302,18 +309,16 @@ public class passengerDashboard extends JFrame implements ActionListener {
         mmdaField.setBorder(null);
         mmdaField.setBounds(110, 90, 300, 30);
 
-        ImageIcon imageMMDA = new ImageIcon("admm.png"); // Replace with your image file path
-        JLabel imageLabel1 = new JLabel(imageMMDA); // Consistent variable name
-        imageLabel1.setBounds(50, 65, 50, 50); // Correct variable usage
-        whitePanel1.add(imageLabel1); // Add to panel
-                
-        // Emergency Contacts section title
+        ImageIcon imageMMDA = new ImageIcon("admm.png"); 
+        JLabel imageLabel1 = new JLabel(imageMMDA); 
+        imageLabel1.setBounds(50, 65, 50, 50); 
+        whitePanel1.add(imageLabel1); 
+ 
         JLabel emergencyLabel = new JLabel("Emergency Contacts");
         emergencyLabel.setFont(new Font("Arimo", Font.BOLD, 24));
         emergencyLabel.setForeground(COLOR_4);
         emergencyLabel.setBounds(50, 20, 400, 30);
-        
-        // PNP contact
+   
         JLabel pnpLabel = new JLabel("Philippine National Police (PNP):");
         pnpLabel.setFont(new Font("Arimo", Font.BOLD, 18));
         pnpLabel.setForeground(COLOR_4);
@@ -327,12 +332,11 @@ public class passengerDashboard extends JFrame implements ActionListener {
         pnpField.setBorder(null);
         pnpField.setBounds(110, 90, 300, 30);
 
-        ImageIcon imagePNP = new ImageIcon("allPNP.png"); // Replace with your image file path
-        JLabel imageLabel2 = new JLabel(imagePNP); // Consistent variable name
-        imageLabel2.setBounds(50, 70, 50, 50); // Correct variable usage
-        whitePanel2.add(imageLabel2); // Add to panel
+        ImageIcon imagePNP = new ImageIcon("allPNP.png"); 
+        JLabel imageLabel2 = new JLabel(imagePNP); 
+        imageLabel2.setBounds(50, 70, 50, 50); 
+        whitePanel2.add(imageLabel2); 
         
-        // BFP contact
         JLabel bfpLabel = new JLabel("Bureau of Fire Protection (BFP):");
         bfpLabel.setFont(new Font("Arimo", Font.BOLD, 18));
         bfpLabel.setForeground(COLOR_4);
@@ -346,12 +350,11 @@ public class passengerDashboard extends JFrame implements ActionListener {
         bfpField.setBorder(null);
         bfpField.setBounds(110, 160, 300, 30);
 
-        ImageIcon imageBFP = new ImageIcon("BFP.png"); // Replace with your image file path
-        JLabel imageLabel3 = new JLabel(imageBFP); // Consistent variable name
-        imageLabel3.setBounds(50, 140, 50, 50); // Correct variable usage
-        whitePanel2.add(imageLabel3); // Add to panel
-        
-        // Medical emergency contact
+        ImageIcon imageBFP = new ImageIcon("BFP.png"); 
+        JLabel imageLabel3 = new JLabel(imageBFP); 
+        imageLabel3.setBounds(50, 140, 50, 50); 
+        whitePanel2.add(imageLabel3); 
+   
         JLabel medicalLabel = new JLabel("Medical Emergencies:");
         medicalLabel.setFont(new Font("Arimo", Font.BOLD, 18));
         medicalLabel.setForeground(COLOR_4);
@@ -365,10 +368,10 @@ public class passengerDashboard extends JFrame implements ActionListener {
         medicalField.setBorder(null);
         medicalField.setBounds(110, 230, 300, 30);
 
-        ImageIcon image911 = new ImageIcon("911.png"); // Replace with your image file path
-        JLabel imageLabel4 = new JLabel(image911); // Consistent variable name
-        imageLabel4.setBounds(50, 210, 50, 50); // Correct variable usage
-        whitePanel2.add(imageLabel4); // Add to panel
+        ImageIcon image911 = new ImageIcon("911.png"); 
+        JLabel imageLabel4 = new JLabel(image911);
+        imageLabel4.setBounds(50, 210, 50, 50); 
+        whitePanel2.add(imageLabel4); // 
 
         JLabel redCrossLabel = new JLabel("Philippine Red Cross:");
         redCrossLabel.setFont(new Font("Arimo", Font.BOLD, 18));
@@ -383,13 +386,11 @@ public class passengerDashboard extends JFrame implements ActionListener {
         redCrossField.setBorder(null);
         redCrossField.setBounds(110, 310, 300, 30);
 
-        ImageIcon imageRC = new ImageIcon("RC.png"); // Replace with your image file path
-        JLabel imageLabel5 = new JLabel(imageRC); // Consistent variable name
-        imageLabel5.setBounds(50, 280, 50, 50); // Correct variable usage
-        whitePanel2.add(imageLabel5); // Add to panel
+        ImageIcon imageRC = new ImageIcon("RC.png"); 
+        JLabel imageLabel5 = new JLabel(imageRC); 
+        imageLabel5.setBounds(50, 280, 50, 50); 
+        whitePanel2.add(imageLabel5); 
         
-        
-        // PRFS Information Section
         JLabel prfsInfoLabel = new JLabel("About us:");
         prfsInfoLabel.setFont(new Font("Arimo", Font.BOLD, 24));
         prfsInfoLabel.setForeground(Color.WHITE);
@@ -424,14 +425,12 @@ public class passengerDashboard extends JFrame implements ActionListener {
         prfsInfoAreaTagalog.setEditable(false);
         prfsInfoAreaTagalog.setBounds(600, 210, 600, 150);
 
-        ImageIcon imageBarko = new ImageIcon("pasig.jpg"); // Replace with your image file path
-        JLabel imageLabel6 = new JLabel(imageBarko); // Consistent variable name
+        ImageIcon imageBarko = new ImageIcon("pasig.jpg");
+        JLabel imageLabel6 = new JLabel(imageBarko); 
         imageLabel6.setBorder(BorderFactory.createLineBorder(Color.WHITE, 5));
-        imageLabel6.setBounds(600, 350, 600, 230); // Correct variable usage
-        helpPanel.add(imageLabel6); // Add to panel
+        imageLabel6.setBounds(600, 350, 600, 230); 
+        helpPanel.add(imageLabel6); 
 
-        
-        // Adding components to the panel
         whitePanel1.add(helpLabel);
         whitePanel1.add(mmdaLabel);
         whitePanel1.add(mmdaField);
@@ -453,7 +452,6 @@ public class passengerDashboard extends JFrame implements ActionListener {
         contentPanel.revalidate();
         contentPanel.repaint();
     }
-    
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -470,7 +468,6 @@ public class passengerDashboard extends JFrame implements ActionListener {
     	try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
-            //this is my local host if error, please install one 					"my db"		"user", "password"
 
             String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";;
             PreparedStatement stmt = con.prepareStatement(query);
@@ -494,9 +491,5 @@ public class passengerDashboard extends JFrame implements ActionListener {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    public static void main(String[] args) {
-        new passengerDashboard();
     }
 }

@@ -30,6 +30,7 @@ class titleFrame extends JFrame {
         ImageIcon imgLOGO = new ImageIcon("agosLogo.png");
         setIconImage(imgLOGO.getImage());
 
+        setTitle("AGOS - Pasig River Ferry System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 911, 499);
         contentPane = new JPanel();
@@ -92,7 +93,7 @@ class titleFrame extends JFrame {
         contentPane.add(panel);
         panel.setLayout(null);
 
-        ImageIcon logo = new ImageIcon("Pasig-River-Ferry-interior.jpg");
+        ImageIcon logo = new ImageIcon("pasigpic.jpg");
         JLabel lblNewLabel = new JLabel();
         lblNewLabel.setIcon(logo);
         lblNewLabel.setBounds(-5, -20, 500, 500);
@@ -136,7 +137,7 @@ class LogInFrame extends JFrame {
         contentPane.add(panel);
         panel.setLayout(null);
 
-        ImageIcon pic2 = new ImageIcon("pasigpic.jpg");
+        ImageIcon pic2 = new ImageIcon("front.png");
         JLabel pasigL = new JLabel();
         pasigL.setIcon(pic2);
         pasigL.setBounds(-5, -20, 500, 500);

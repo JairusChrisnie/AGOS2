@@ -16,9 +16,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 
-public class adminDB extends JFrame implements ActionListener {
+public class adminDB extends JFrame implements ActionListener{
 
-    // Components for the dashboard
+    // Components for the Admin Dashboard
     private JPanel mainPanel, headerPanel, sidebarPanel, contentPanel;
     private JButton scheduleButton, addEditButton, logoutButton;
     private JLabel logoLabel, titleLabel;
@@ -41,7 +41,8 @@ public class adminDB extends JFrame implements ActionListener {
     private final Color COLOR_6 = new Color(78, 128, 193); // #4e80c1
     private final Color COLOR_7 = new Color(151, 180, 220); // #97b4dc
     
-
+    // Schedule Manager
+    private ScheduleManager scheduleManager;
 
     public adminDB(JPanel mainPanel, JPanel headerPanel, JPanel sidebarPanel, JPanel contentPanel, JButton scheduleButton, JButton addEditButton, JButton logoutButton, JLabel logoLabel, JLabel titleLabel, JTable detailsTable, JScrollPane scrollPane, DefaultTableModel tableModel) throws HeadlessException {
         this.mainPanel = mainPanel;
@@ -57,37 +58,32 @@ public class adminDB extends JFrame implements ActionListener {
         this.scrollPane = scrollPane;
         this.tableModel = tableModel;
     }
-
     
-    
-    // Counters for Trip ID generation
-    private int upstreamCounter = 1; // Starting from 1
-    private int downstreamCounter = 1; // Starting from 1
+    private int upstreamCounter = 1;
+    private int downstreamCounter = 1; 
 
-    // Track if editing is enabled
     private boolean isEditingEnabled = false;
 
     public adminDB() {
+        tableModel = new DefaultTableModel(new Object[][]{}, columnNames) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return isEditingEnabled && column != 0; // Editable only when editing is enabled and column is not Trip ID
+            }
+        };
 
-        ImageIcon imgLOGO = new ImageIcon("agosLogo.png");
-        setIconImage(imgLOGO.getImage());
-    
-
-        // Frame setup
         setTitle("Admin Dashboard - Pasig Ferry Information System");
         setSize(1100,650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize the frame
 
-        // Main Panel
+  
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(COLOR_4);
         add(mainPanel, BorderLayout.CENTER);
 
-        // Header Panel
-        //headerPanel = new JPanel();
         JPanel headerPanel = new JPanel(); 
         headerPanel.setBackground(COLOR_4); 
         headerPanel.setPreferredSize(new Dimension(1000, 125));
@@ -129,27 +125,24 @@ public class adminDB extends JFrame implements ActionListener {
         Image img = logo.getImage().getScaledInstance(140, 102, Image.SCALE_SMOOTH);
         lblNewLabel_2.setIcon(new ImageIcon(img));
 
-        // Sidebar Panel
         sidebarPanel = new JPanel();
         sidebarPanel.setBackground(COLOR_1);
         sidebarPanel.setPreferredSize(new Dimension(150, 55));
-        sidebarPanel.setLayout(new BorderLayout(10, 10)); // Use BorderLayout for sidebar
+        sidebarPanel.setLayout(new BorderLayout(10, 10)); 
         mainPanel.add(sidebarPanel, BorderLayout.WEST);
 
-        // Buttons for sidebar
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(COLOR_1);
-        buttonPanel.setLayout(new GridLayout(8, 7, 0, 6)); // 2 rows for buttons
+        buttonPanel.setLayout(new GridLayout(8, 7, 0, 6)); 
 
         scheduleButton = createSidebarButton("Schedule");
-        scheduleButton.setBackground(COLOR_4); // Highlight the default button
+        scheduleButton.setBackground(COLOR_4); 
         addEditButton = createSidebarButton("Add/Edit ");
         addEditButton.setBackground(COLOR_2);
 
         buttonPanel.add(scheduleButton);
         buttonPanel.add(addEditButton);
 
-        // Logout button at the bottom
         logoutButton = createSidebarButton("Logout");
         JPanel logoutPanel = new JPanel(new BorderLayout());
         logoutPanel.setBackground(COLOR_1);
@@ -161,28 +154,116 @@ public class adminDB extends JFrame implements ActionListener {
         sidebarPanel.add(buttonPanel, BorderLayout.CENTER);
         sidebarPanel.add(logoutPanel, BorderLayout.SOUTH);
 
-        // Content Panel
         contentPanel = new JPanel();
         contentPanel.setBackground(COLOR_1);
         contentPanel.setLayout(new BorderLayout());
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        // Initialize the table model
-        tableModel = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // Allow editing only if editing is enabled
-                return isEditingEnabled;
-            }
-        };
+        scheduleManager = new ScheduleManager() {
+        @Override
+        public void loadDataFromDB() {
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
 
-        // Load saved data
+                String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";
+                PreparedStatement stmt = con.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getString("Trip ID"),
+                        rs.getString("Body No."),
+                        rs.getString("Route"),
+                        rs.getString("Location"),
+                        rs.getString("ETA"),
+                        rs.getString("Seats Available"),
+                        rs.getString("Status")
+                    };
+                tableModel.addRow(row);
+                }
+
+                con.close();
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+            
+        @Override
+        public void saveDataToDB(DefaultTableModel tableModel) {    
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(null, "The table is empty.", "EMPTY", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            String strTripID, strRoute, strLocation, strETA, strStatus, strBodyNo, strSeats;
+            try (
+                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+            ){
+                for (int i = 0; i < tableModel.getRowCount(); i++) {
+                    strTripID = (String) tableModel.getValueAt(i, 0);
+                    strBodyNo = (String) tableModel.getValueAt(i, 1);
+                    strRoute = (String) tableModel.getValueAt(i, 2);
+                    strLocation = (String) tableModel.getValueAt(i, 3);
+                    strETA = (String) tableModel.getValueAt(i, 4);
+                    strSeats = (String) tableModel.getValueAt(i, 5);
+                    strStatus = (String) tableModel.getValueAt(i, 6);
+
+                    // Check if Trip ID exists in the database
+                    String checkQuery = "SELECT COUNT(*) FROM ferryTABLE WHERE `Trip ID` = ?";
+                    try (PreparedStatement checkStmt = con.prepareStatement(checkQuery)) {
+                        checkStmt.setString(1, strTripID);
+                        ResultSet rs = checkStmt.executeQuery();
+                        rs.next();
+                        int count = rs.getInt(1);
+
+                        if (count == 0) {
+                            // Insert new row
+                            String insertQuery = "INSERT INTO ferryTABLE(`Trip ID`, `Body No.`, `Route`, `Location`, `ETA`, `Seats Available`, `Status`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            try (PreparedStatement insertStmt = con.prepareStatement(insertQuery)) {
+                                insertStmt.setString(1, strTripID);
+                                insertStmt.setString(2, strBodyNo);
+                                insertStmt.setString(3, strRoute);
+                                insertStmt.setString(4, strLocation);
+                                insertStmt.setString(5, strETA);
+                                insertStmt.setString(6, strSeats);
+                                insertStmt.setString(7, strStatus);
+                                insertStmt.executeUpdate();
+                            }
+                        } else {
+                            // Update existing row
+                            String updateQuery = "UPDATE ferryTABLE SET `Body No.` = ?, `Route` = ?, `Location` = ?, `ETA` = ?, `Seats Available` = ?, `Status` = ? WHERE `Trip ID` = ?";
+                            try (PreparedStatement updateStmt = con.prepareStatement(updateQuery)) {
+                                updateStmt.setString(1, strBodyNo);
+                                updateStmt.setString(2, strRoute);
+                                updateStmt.setString(3, strLocation);
+                                updateStmt.setString(4, strETA);
+                                updateStmt.setString(5, strSeats);
+                                updateStmt.setString(6, strStatus);
+                                updateStmt.setString(7, strTripID);
+                                updateStmt.executeUpdate();
+                            }
+                        }
+                    }
+                }
+
+                JOptionPane.showMessageDialog(null, "Data saved successfully!", "Save", JOptionPane.INFORMATION_MESSAGE);
+            } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(null, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
         mtdLoadDataFromDB();
 
-        // Default content (Schedule Preview)
-        showSchedulePreview();
+        scheduleManager.loadDataFromDB();
+ 
+        scheduleManager.showSchedulePreview(contentPanel);
 
-        // Make the frame visible
         setVisible(true);
     }
 
@@ -193,7 +274,6 @@ public class adminDB extends JFrame implements ActionListener {
         return new ImageIcon(resizedImage);
     }
 
-    // Method to create styled sidebar buttons
     private JButton createSidebarButton(String text) {
         JButton button = new JButton(text);
         button.setBackground(COLOR_2);
@@ -201,30 +281,25 @@ public class adminDB extends JFrame implements ActionListener {
         button.setFont(new Font("Century Gothic", Font.BOLD, 22));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
-        button.setPreferredSize(new Dimension(180, 55));        // size for sidebar buttons
+        button.setPreferredSize(new Dimension(180, 55));        
         button.addActionListener(this);
         return button;
     }
 
-    // Method to show Schedule Preview
     private void showSchedulePreview() {
         contentPanel.removeAll();
-        //scheduleButton.setBackground(COLOR_5);  
         JLabel scheduleLabel = new JLabel("Schedule (Pre-view)");
         scheduleLabel.setFont(new Font("Century Gothic", Font.BOLD, 45));
         scheduleLabel.setForeground(Color.WHITE);
         scheduleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         scheduleLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        // Panel behind the schedule with an outline
         JPanel tablePanel = new JPanel();
         tablePanel.setBackground(COLOR_5);
         tablePanel.setBorder(BorderFactory.createLineBorder(COLOR_4, 40));
         tablePanel.setLayout(new BorderLayout());
-
         tablePanel.add(scheduleLabel, BorderLayout.NORTH);
 
-        // Display the table
         detailsTable = new JTable(tableModel);
         detailsTable.setFont(new Font("Century Gothic", Font.PLAIN, 14));
         detailsTable.setBackground(COLOR_1);
@@ -234,30 +309,25 @@ public class adminDB extends JFrame implements ActionListener {
         tableHeader.setFont(new Font("Century Gothic", Font.BOLD, 16));
         tableHeader.setPreferredSize(new Dimension(100, 30));
 
-        // Center text in table cells
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < detailsTable.getColumnCount(); i++) {
             detailsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // Disable row reordering
         detailsTable.getTableHeader().setReorderingAllowed(false);
 
-        // Disable editing in Schedule Preview
-        detailsTable.setEnabled(false); // Disable interaction entirely
+        detailsTable.setEnabled(false); 
 
         JScrollPane tableScrollPane = new JScrollPane(detailsTable);
         tablePanel.add(tableScrollPane, BorderLayout.CENTER);
 
-        //contentPanel.add(scheduleLabel, BorderLayout.NORTH);
         contentPanel.add(tablePanel, BorderLayout.CENTER);
 
         contentPanel.revalidate();
         contentPanel.repaint();
     }
 
-    // Method to show Add/Edit Details
     private void showAddEditDetails() {
         contentPanel.removeAll();
         JLabel detailsLabel = new JLabel("Add/Edit Details");
@@ -266,21 +336,17 @@ public class adminDB extends JFrame implements ActionListener {
         detailsLabel.setHorizontalAlignment(JLabel.CENTER);
         detailsLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        // Panel behind the table with an outline
         JPanel tablePanel = new JPanel();
         tablePanel.setBackground(COLOR_5);
         tablePanel.setBorder(BorderFactory.createLineBorder(COLOR_2, 40));
         tablePanel.setLayout(new BorderLayout());
         tablePanel.add(detailsLabel, BorderLayout.NORTH);
 
-        // Display the table
         detailsTable = new JTable(tableModel);
         detailsTable.setFont(new Font("Century Gothic", Font.PLAIN, 14));
         detailsTable.setBackground(COLOR_1);
         detailsTable.setForeground(COLOR_4);
         detailsTable.setRowHeight(30);
-        //detailsTable.setBorder(BorderFactory.createLineBorder(COLOR_4, 2));
-        //detailsTable.setRowSelectionInterval(0, 0);
         JTableHeader tableHeader = detailsTable.getTableHeader();
         tableHeader.setFont(new Font("Century Gothic", Font.BOLD, 16));
         tableHeader.setPreferredSize(new Dimension(100, 30));   
@@ -292,10 +358,8 @@ public class adminDB extends JFrame implements ActionListener {
             detailsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // Disable row reordering
         detailsTable.getTableHeader().setReorderingAllowed(false);
 
-        // Set custom renderers and editors for the Route, Location, and Status columns
         detailsTable.getColumnModel().getColumn(2).setCellEditor(new RouteComboBoxEditor());
         detailsTable.getColumnModel().getColumn(3).setCellEditor(new LocationComboBoxEditor());
         detailsTable.getColumnModel().getColumn(6).setCellEditor(new StatusComboBoxEditor());
@@ -325,9 +389,9 @@ public class adminDB extends JFrame implements ActionListener {
 
         // Add action listeners to buttons
         addRowButton.addActionListener(e -> {
-            tableModel.addRow(new Object[]{"", "", "", "", "", "", ""}); // Add an empty row
-            isEditingEnabled = true; // Enable editing for the new row
-            tableModel.fireTableDataChanged(); // Refresh the table
+            tableModel.addRow(new Object[]{"", "", "", "", "", "", ""}); 
+            isEditingEnabled = true; 
+            tableModel.fireTableDataChanged(); 
         });
 
         deleteButton.addActionListener(e -> mtdDeleteRow());
@@ -337,7 +401,7 @@ public class adminDB extends JFrame implements ActionListener {
             if (selectedRow != -1) {
                 // Enable editing for the selected row
                 isEditingEnabled = true;
-                tableModel.fireTableDataChanged(); // Refresh the table to reflect changes
+                tableModel.fireTableDataChanged();
                 JOptionPane.showMessageDialog(this, "Editing enabled for the selected row!", "Edit", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a row to edit!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -347,7 +411,7 @@ public class adminDB extends JFrame implements ActionListener {
         addPassengerButton.addActionListener(e -> {
         	int selectedRow = detailsTable.getSelectedRow();
             if (selectedRow != -1) {
-            	String tripID = (String) detailsTable.getValueAt(selectedRow, 0); // Get the TripID of the selected row
+            	String tripID = (String) detailsTable.getValueAt(selectedRow, 0); 
 	            new PassengerInformation(tripID);
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a row to add passengers!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -369,64 +433,77 @@ public class adminDB extends JFrame implements ActionListener {
     public void mtdSaveData() {
         DefaultTableModel tblModel = (DefaultTableModel) detailsTable.getModel();
 
-        // Check if the table is empty
         if (tblModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(null, "The table is empty.", "EMPTY", JOptionPane.INFORMATION_MESSAGE);
         } else {
             String strTripID, strRoute, strLocation, strETA, strStatus, strBodyNo, strSeats;
 
-            try {
-                // Database connection
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
 
-                for (int i = 0; i < tblModel.getRowCount(); i++) {
-                    // Retrieve values from the table row
-                    strTripID = tblModel.getValueAt(i, 0) != null ? tblModel.getValueAt(i, 0).toString() : "";
-                    strBodyNo = tblModel.getValueAt(i, 1) != null ? tblModel.getValueAt(i, 1).toString() : "";
-                    strRoute = tblModel.getValueAt(i, 2) != null ? tblModel.getValueAt(i, 2).toString() : "";
-                    strLocation = tblModel.getValueAt(i, 3) != null ? tblModel.getValueAt(i, 3).toString() : "";
-                    strETA = tblModel.getValueAt(i, 4) != null ? tblModel.getValueAt(i, 4).toString() : "";
-                    strSeats = tblModel.getValueAt(i, 5) != null ? tblModel.getValueAt(i, 5).toString() : "";
-                    strStatus = tblModel.getValueAt(i, 6) != null ? tblModel.getValueAt(i, 6).toString() : "";
-
-                    // Check if Trip ID exists in the database
-                    String checkQuery = "SELECT COUNT(*) FROM ferryTABLE WHERE `Trip ID` = ?";
-                    PreparedStatement checkStmt = con.prepareStatement(checkQuery);
-                    checkStmt.setString(1, strTripID);
-                    ResultSet rs = checkStmt.executeQuery();
-                    rs.next();
-                    int count = rs.getInt(1);
-
-                    if (count == 0) {
-                        // Insert new rows
-                        String insertQuery = "INSERT INTO ferryTABLE(`Trip ID`, `Body No.`, `Route`, `Location`, `ETA`, `Seats Available`, `Status`) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                        PreparedStatement insertStmt = con.prepareStatement(insertQuery);
-                        insertStmt.setString(1, strTripID);
-                        insertStmt.setString(2, strBodyNo);
-                        insertStmt.setString(3, strRoute);
-                        insertStmt.setString(4, strLocation);
-                        insertStmt.setString(5, strETA);
-                        insertStmt.setString(6, strSeats);
-                        insertStmt.setString(7, strStatus);
-                        insertStmt.executeUpdate();
-                    } else {
-                        // Update existing rows
-                        String updateQuery = "UPDATE ferryTABLE SET `Body No.` = ?, `Route` = ?, `Location` = ?, `ETA` = ?, `Seats Available` = ?, `Status` = ? WHERE `Trip ID` = ?";
-                        PreparedStatement updateStmt = con.prepareStatement(updateQuery);
-                        updateStmt.setString(1, strBodyNo);
-                        updateStmt.setString(2, strRoute);
-                        updateStmt.setString(3, strLocation);
-                        updateStmt.setString(4, strETA);
-                        updateStmt.setString(5, strSeats);
-                        updateStmt.setString(6, strStatus);
-                        updateStmt.setString(7, strTripID);
-                        updateStmt.executeUpdate();
+            for (int i = 0; i < tblModel.getRowCount(); i++) {
+                String tripID = tblModel.getValueAt(i, 0).toString();
+                    if (tripID.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Please enter a valid Trip ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
+
+                strTripID = tblModel.getValueAt(i, 0) != null ? tblModel.getValueAt(i, 0).toString() : "";
+                strBodyNo = tblModel.getValueAt(i, 1) != null ? tblModel.getValueAt(i, 1).toString() : "";
+                strRoute = tblModel.getValueAt(i, 2) != null ? tblModel.getValueAt(i, 2).toString() : "";
+                strLocation = tblModel.getValueAt(i, 3) != null ? tblModel.getValueAt(i, 3).toString() : "";
+                strETA = tblModel.getValueAt(i, 4) != null ? tblModel.getValueAt(i, 4).toString() : "";
+                strSeats = tblModel.getValueAt(i, 5) != null ? tblModel.getValueAt(i, 5).toString() : "";
+                strStatus = tblModel.getValueAt(i, 6) != null ? tblModel.getValueAt(i, 6).toString() : "";
+
+                String checkQuery = "SELECT COUNT(*) FROM ferryTABLE WHERE `Trip ID` = ?";
+                PreparedStatement checkStmt = con.prepareStatement(checkQuery);
+                checkStmt.setString(1, strTripID);
+                ResultSet rs = checkStmt.executeQuery();
+                rs.next();
+                int count = rs.getInt(1);
+
+                if (count == 0) {
+                    String insertQuery = "INSERT INTO ferryTABLE(`Trip ID`, `Body No.`, `Route`, `Location`, `ETA`, `Seats Available`, `Status`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    PreparedStatement insertStmt = con.prepareStatement(insertQuery);
+                    insertStmt.setString(1, strTripID);
+                    insertStmt.setString(2, strBodyNo);
+                    insertStmt.setString(3, strRoute);
+                    insertStmt.setString(4, strLocation);
+                    insertStmt.setString(5, strETA);
+                    insertStmt.setString(6, strSeats);
+                    insertStmt.setString(7, strStatus);
+                    insertStmt.executeUpdate();
+                } else {
+                    String updateQuery = "UPDATE ferryTABLE SET `Body No.` = ?, `Route` = ?, `Location` = ?, `ETA` = ?, `Seats Available` = ?, `Status` = ? WHERE `Trip ID` = ?";
+                    PreparedStatement updateStmt = con.prepareStatement(updateQuery);
+                    updateStmt.setString(1, strBodyNo);
+                    updateStmt.setString(2, strRoute);
+                    updateStmt.setString(3, strLocation);
+                    updateStmt.setString(4, strETA);
+                    updateStmt.setString(5, strSeats);
+                    updateStmt.setString(6, strStatus);
+                    updateStmt.setString(7, strTripID);
+                    updateStmt.executeUpdate();
                 }
 
-                con.close();
+                try {
+                    int seats = Integer.parseInt(strSeats);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Seats Available must be a number!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
+                try {
+                    int seats = Integer.parseInt(strSeats);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Seats Available must be a number!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            con.close();
             } catch (ClassNotFoundException | SQLException e) {
                 JOptionPane.showMessageDialog(null, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
@@ -435,14 +512,12 @@ public class adminDB extends JFrame implements ActionListener {
     }
     
     private void mtdLoadDataFromDB() {
-    	try {
+        tableModel.setRowCount(0); // Clear the table before loading new data
+        try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
-            //this is my local host if error, please install one 					"my db"		"user", "password"
-
-            String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";;
-            PreparedStatement stmt = con.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+                 PreparedStatement stmt = con.prepareStatement("SELECT * FROM ferryTABLE ORDER BY created_at ASC");
+                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Object[] row = {
@@ -452,103 +527,88 @@ public class adminDB extends JFrame implements ActionListener {
                     rs.getString("Location"),
                     rs.getString("ETA"),
                     rs.getString("Seats Available"),
-                    rs.getString("Status")
-                };
-                tableModel.addRow(row);
+                    rs.getString("Status")};
+                    tableModel.addRow(row);
+                }
             }
-
-            con.close();
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    public void mtdDeleteRow(){
-        int intSelectedRow = detailsTable.getSelectedRow();
-            if(intSelectedRow == -1) {
-                JOptionPane.showMessageDialog(null, "Please select a row to delete.", "ERROR!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            String strTripID = (String) tableModel.getValueAt(intSelectedRow, 0);
-            
-            if(strTripID == null || strTripID.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "The selected row does not have a valid trip ID.", "ERROR!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            int intConfirmation = JOptionPane.showConfirmDialog(null,
-                    "Are you sure you want to delete this row?",
-                    "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-            
-            if(intConfirmation == JOptionPane.YES_OPTION) {
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
-                    //this is my local host if error, please install one 					"my db"		"user", "password"
-                    
-                    //Move data from passengerTable to deletedPassengerTable
-                    String strMovePassengerDeletedQuery = 
-                    	    "INSERT INTO deletedPassengerData(`Trip ID`, `Name`, `Age`, `Gender`, `Address`, `Contact #`, `Destination`) "
-                    	    + "SELECT `Trip ID`, `Name`, `Age`, `Gender`, `Address`, `Contact #`, `Destination` "
-                    	    + "FROM passengerTABLE WHERE `Trip ID` = ?";
-                    	PreparedStatement moveStmt = con.prepareStatement(strMovePassengerDeletedQuery);
-                    	moveStmt.setString(1, strTripID);
-                    	moveStmt.executeUpdate();	
-                    	
-                	// Step 2: Delete data from passengerTABLE
-                    String deleteFromPassengerTableQuery = "DELETE FROM passengerTABLE WHERE `Trip ID` = ?";
-                    PreparedStatement deleteStmt = con.prepareStatement(deleteFromPassengerTableQuery);
-                    deleteStmt.setString(1, strTripID);
-                    deleteStmt.executeUpdate();
-                                        
-                    // Retrieve the row data from the JTable
-                    String strBodyNo = (String) tableModel.getValueAt(intSelectedRow, 1);
-                    String strRoute = (String) tableModel.getValueAt(intSelectedRow, 2);
-                    String strLocation = (String) tableModel.getValueAt(intSelectedRow, 3);
-                    String strETA = (String) tableModel.getValueAt(intSelectedRow, 4);
-                    String strSeatsAvailable = (String) tableModel.getValueAt(intSelectedRow, 5);
-                    String strStatus = (String) tableModel.getValueAt(intSelectedRow, 6);
-                           
-                    //insert data to ferryDeletedTrip table
-                    String strInsertDeletedTripQuery = "INSERT INTO ferryDeletedTrip(`Trip ID`, `Body No.`, `Route`, `Location`, `ETA`, `Seats Available`, `Status`) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    PreparedStatement insertStmt = con.prepareStatement(strInsertDeletedTripQuery);
-                    insertStmt.setString(1, strTripID);
-                    insertStmt.setString(2, strBodyNo);
-                    insertStmt.setString(3, strRoute);
-                    insertStmt.setString(4, strLocation);
-                    insertStmt.setString(5, strETA);
-                    insertStmt.setString(6, strSeatsAvailable);
-                    insertStmt.setString(7, strStatus);
-                    insertStmt.executeUpdate();
-                    
-                    //delete data from row and from ferryTABLE database
-                    String strDeleteQuery = "DELETE FROM ferryTABLE WHERE `Trip ID` = ?";
-                    PreparedStatement prepstmt = con.prepareStatement(strDeleteQuery);
-                    
-                    prepstmt.setString(1, strTripID);
-                    
-                    int intRowsAffected = prepstmt.executeUpdate();
-                    
-                    con.close();
-                    
-                    if(intRowsAffected > 0) {
-                        tableModel.removeRow(intSelectedRow);
-                        JOptionPane.showMessageDialog(null, "Row successfully deleted!");
-                    }
-                    else {
-                        JOptionPane.showMessageDialog(null, "Failed to delete row in database");	
-                    }
+    public void mtdDeleteRow() {
+    int intSelectedRow = detailsTable.getSelectedRow();
+    if (intSelectedRow == -1) {
+        JOptionPane.showMessageDialog(null, "Please select a row to delete.", "ERROR!", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String strTripID = (String) tableModel.getValueAt(intSelectedRow, 0);
+    if (strTripID == null || strTripID.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Invalid Trip ID.", "ERROR!", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    int confirmation = JOptionPane.showConfirmDialog(null, 
+        "Are you sure you want to delete this row?", 
+        "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+    if (confirmation == JOptionPane.YES_OPTION) {
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root")) {
+            con.setAutoCommit(false); 
+                
+            try (PreparedStatement moveStmt = con.prepareStatement(
+                "INSERT INTO deletedPassengerData(`Trip ID`, `Name`, `Age`, `Gender`, `Address`, `Contact #`, `Destination`) " +
+                "SELECT `Trip ID`, `Name`, `Age`, `Gender`, `Address`, `Contact #`, `Destination` " +
+                "FROM passengerTABLE WHERE `Trip ID` = ?")) {
+                moveStmt.setString(1, strTripID);
+                moveStmt.executeUpdate();
                 }
-                catch(ClassNotFoundException | SQLException e){
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            try (PreparedStatement deleteStmt = con.prepareStatement(
+                "DELETE FROM passengerTABLE WHERE `Trip ID` = ?")) {
+                deleteStmt.setString(1, strTripID);
+                deleteStmt.executeUpdate();
+                }
+
+            try (PreparedStatement insertStmt = con.prepareStatement(
+                "INSERT INTO ferryDeletedTrip(`Trip ID`, `Body No.`, `Route`, `Location`, `ETA`, `Seats Available`, `Status`) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                
+                insertStmt.setString(1, strTripID);
+                insertStmt.setString(2, (String) tableModel.getValueAt(intSelectedRow, 1));
+                insertStmt.setString(3, (String) tableModel.getValueAt(intSelectedRow, 2));
+                insertStmt.setString(4, (String) tableModel.getValueAt(intSelectedRow, 3));
+                insertStmt.setString(5, (String) tableModel.getValueAt(intSelectedRow, 4));
+                insertStmt.setString(6, (String) tableModel.getValueAt(intSelectedRow, 5));
+                insertStmt.setString(7, (String) tableModel.getValueAt(intSelectedRow, 6));
+                insertStmt.executeUpdate();
+                }
+
+            try (PreparedStatement deleteTripStmt = con.prepareStatement(
+                "DELETE FROM ferryTABLE WHERE `Trip ID` = ?")) {
+                deleteTripStmt.setString(1, strTripID);
+                int rowsAffected = deleteTripStmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    con.commit(); 
+                    tableModel.removeRow(intSelectedRow);
+                    JOptionPane.showMessageDialog(null, "Row deleted successfully!");
+                } else {
+                    con.rollback();
+                    JOptionPane.showMessageDialog(null, "No rows affected!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
-            else if(intConfirmation == JOptionPane.NO_OPTION) {
-                JOptionPane.showMessageDialog(null, "Deletion cancelled");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, 
+                "Database Error: " + e.getMessage(), 
+                "Critical Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Deletion cancelled");
+        }
     }
 
     // Method to create styled action buttons
@@ -578,13 +638,12 @@ public class adminDB extends JFrame implements ActionListener {
             int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Logout", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 new titleFrame();
-                dispose(); // Close the dashboard
-                //new LoginFrame(); // Replace LoginFrame with your actual login class
+                dispose(); // Closing the dashboard
             }
         }
     }
 
- // Custom ComboBox Editor for Route column
+    // Custom ComboBox Editor for Route column
     private class RouteComboBoxEditor extends DefaultCellEditor {
 
         public RouteComboBoxEditor() {
@@ -595,10 +654,10 @@ public class adminDB extends JFrame implements ActionListener {
                 if (selectedRow != -1) {
                     String selectedRoute = (String) comboBox.getSelectedItem();
                     if ("Upstream".equals(selectedRoute)) {
-                        String tripID = generateUniqueTripID("U-", upstreamCounter);
+                        String tripID = generateUniqueTripID("U-");
                         tableModel.setValueAt(tripID, selectedRow, 0);
                     } else if ("Downstream".equals(selectedRoute)) {
-                        String tripID = generateUniqueTripID("D-", downstreamCounter);
+                        String tripID = generateUniqueTripID("D-");
                         tableModel.setValueAt(tripID, selectedRow, 0);
                     }
 
@@ -607,45 +666,28 @@ public class adminDB extends JFrame implements ActionListener {
                 }
             });
         }
+    }
     
-     // Generates a unique Trip ID by checking the database if the counter is already present or not.
-        private String generateUniqueTripID(String prefix, int counter) {
-            String tripID;
-            boolean isUnique = false;
-
-            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
-                 PreparedStatement checkStmt = con.prepareStatement("SELECT COUNT(*) FROM ferryTABLE WHERE `Trip ID` = ?");
-                 PreparedStatement checkStmtDeletedTrips = con.prepareStatement("SELECT COUNT(*) FROM ferryDeletedTrip WHERE `Trip ID` = ?")) {
-
-                while (!isUnique) {
-                    tripID = prefix + String.format("%04d", counter);
-                    checkStmt.setString(1, tripID);
-                    checkStmtDeletedTrips.setString(1, tripID);
-
-                    try (ResultSet rs1 = checkStmt.executeQuery();
-                         ResultSet rs2 = checkStmtDeletedTrips.executeQuery()) {
-                        rs1.next();
-                        rs2.next();
-                        int count1 = rs1.getInt(1);
-                        int count2 = rs2.getInt(1);
-
-                        if (count1 == 0 && count2 == 0) {
-                            isUnique = true; // Trip ID is unique in both tables
-                        } else {
-                            counter++; // Increment counter to generate a new Trip ID
-                        }
-                    }
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-                return null; // Return null if an error occurs
-            }
-
-            return prefix + String.format("%04d", counter);
+    // Generates a unique Trip ID by checking the database if the counter is already present or not.
+    private String generateUniqueTripID(String prefix) {
+    String query = "SELECT MAX(CAST(SUBSTRING(`Trip ID`, 3) AS UNSIGNED)) FROM ferryTABLE WHERE `Trip ID` LIKE ?";
+    try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+         PreparedStatement pstmt = con.prepareStatement(query)) {
+        pstmt.setString(1, prefix + "%");
+        ResultSet rs = pstmt.executeQuery();
+        int maxID = 0;
+        if (rs.next()) {
+            maxID = rs.getInt(1);
         }
-}
 
+        int nextID = maxID + 1;
+        return prefix + String.format("%04d", nextID);
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+        }
+    }
+    
     // Custom ComboBox Editor for Location column
     private class LocationComboBoxEditor extends DefaultCellEditor {
         private JComboBox<String> comboBox;
@@ -672,85 +714,12 @@ public class adminDB extends JFrame implements ActionListener {
 
     // Method to update the Location column's ComboBox based on the selected Route
     private void updateLocationComboBox(int row, String route) {
-        LocationComboBoxEditor locationEditor = (LocationComboBoxEditor) detailsTable.getColumnModel().getColumn(3).getCellEditor();
-        if ("Upstream".equals(route)) {
-            locationEditor.setLocations(new String[]{"", "Quinta", "Lawton", "Escolta"});
-        } else if ("Downstream".equals(route)) {
-            locationEditor.setLocations(new String[]{"", "Sta. Ana", "Lambingan", "Valenzuela", "Hulo", "Guadalupe", "San Joaquin", "Kalawaan"});
-        }
+    LocationComboBoxEditor locationEditor = (LocationComboBoxEditor) detailsTable.getColumnModel().getColumn(3).getCellEditor();
+    if ("Upstream".equals(route)) {
+        locationEditor.setLocations(new String[]{"", "Quinta", "Lawton", "Escolta"});
+    } else if ("Downstream".equals(route)) {
+        locationEditor.setLocations(new String[]{"", "Sta. Ana", "Lambingan", "Valenzuela", "Hulo", "Guadalupe", "San Joaquin", "Kalawaan"});
     }
-
-    /*
-    // Method to show the Add Passenger dialog
-    private void showAddPassengerDialog() {
-        JDialog dialog = new JDialog(this, "Add Passenger", true);
-        dialog.setLayout(new GridLayout(7, 2, 0, 5));
-        dialog.setSize(400, 300);
-        dialog.setBackground(COLOR_5);
-        dialog.setLocationRelativeTo(this);
-
-        // Fields for passenger details
-        JTextField nameField = new JTextField();
-        nameField.setPreferredSize(new Dimension(200, 30));
-        JTextField ageField = new JTextField();
-        ageField.setPreferredSize(new Dimension(200, 30));  
-        JComboBox<String> genderComboBox = new JComboBox<>(new String[]{"Male", "Female", "Other"});
-        JTextField addressField = new JTextField();
-        addressField.setPreferredSize(new Dimension(200, 30));  
-        JTextField contactField = new JTextField();
-        contactField.setPreferredSize(new Dimension(200, 30));  
-        JTextField destinationField = new JTextField();
-        JComboBox<String> destinationComboBox = new JComboBox<>(new String[]{"", "Quinta", "Lawton", "Escolta", "Sta. Ana", "Lambingan", "Valenzuela", "Hulo", "Guadalupe", "San Joaquin", "Kalawaan"});
-        
-
-    
-        dialog.add(new JLabel("Name:"));
-        dialog.add(nameField);
-        dialog.add(new JLabel("Age:"));
-        dialog.add(ageField);
-        dialog.add(new JLabel("Gender:"));
-        dialog.add(genderComboBox);
-        dialog.add(new JLabel("Address:"));
-        dialog.add(addressField);
-        dialog.add(new JLabel("Contact Number:"));
-        dialog.add(contactField);
-        dialog.add(new JLabel("Destination:"));
-        dialog.add(destinationComboBox);
-
-        // Add Passenger Button
-        JButton addButton = new JButton("Add Passenger");
-        addButton.setBackground(COLOR_5);
-        addButton.setForeground(Color.WHITE);
-        addButton.setFont(new Font("Century Gothic", Font.BOLD, 14));
-        addButton.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 102), 2));   
-        addButton.setFocusable(false);
-        addButton.setBounds(400, 300, 200, 30);
-        
-        addButton.addActionListener(e -> {
-            String name = nameField.getText();
-            String age = ageField.getText();
-            String gender = (String) genderComboBox.getSelectedItem();
-            String address = addressField.getText();
-            String contact = contactField.getText();
-            String destination = destinationField.getText();
-
-            // Validate input
-            if (name.isEmpty() || age.isEmpty() || address.isEmpty() || contact.isEmpty() || destination.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog, "Please fill all fields!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Add passenger details to the table
-            tableModel.addRow(new Object[]{name, age, gender, address, contact, destination});
-            dialog.dispose();
-        });
-
-        dialog.add(addButton);
-        dialog.setVisible(true);
-    }
-	}*/
-
-    public static void main(String[] args) {
-        new adminDB();
+        detailsTable.repaint(); // repaint refreshes the whole UI
     }
 }
