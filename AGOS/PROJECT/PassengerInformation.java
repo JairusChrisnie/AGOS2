@@ -122,20 +122,39 @@ public class PassengerInformation extends JFrame {
 			
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-				if(e.getSource()== btnSave) {
-					//Check if combo box is equals to the first combo box
-					String strDestination = (String) cmbLocation.getSelectedItem();
-					
-					if("Select Destination".equals(strDestination)) {
-						JOptionPane.showMessageDialog(null, "Please select a proper destination.", "ERROR!", JOptionPane.ERROR_MESSAGE);
-					}
-					else {
-						getPassengerData();
-					}
-				}
-			}
+		    public void actionPerformed(ActionEvent e) {
+		        if (e.getSource() == btnSave) {
+		            // Get input values
+		            String name = txtName.getText().trim();
+		            String age = txtAge.getText().trim();
+		            String address = txtAddress.getText().trim();
+		            String contact = txtContact.getText().trim();
+		            String strDestination = (String) cmbLocation.getSelectedItem();
+
+		            // Check if a gender is selected
+		            if (!rdbtnMale.isSelected() && !rdbtnFemale.isSelected() && !rdbtnOthers.isSelected()) {
+		                JOptionPane.showMessageDialog(null, "Please select a gender.", "ERROR!", JOptionPane.ERROR_MESSAGE);
+		                return;
+		            }
+
+		            // Validate fields
+		            if (name.isEmpty() || age.isEmpty() || address.isEmpty() || contact.isEmpty()) {
+		                JOptionPane.showMessageDialog(null, "All fields must be filled.", "ERROR!", JOptionPane.ERROR_MESSAGE);
+		                return;
+		            }
+
+		            // Check if destination is properly selected
+		            if ("Select Destination".equals(strDestination)) {
+		                JOptionPane.showMessageDialog(null, "Please select a proper destination.", "ERROR!", JOptionPane.ERROR_MESSAGE);
+		                return;
+		            }
+
+		            // If all validations pass, proceed with saving
+		            getPassengerData();
+		        }
+		    }
 		});
+
         
 		btnSave.setFont(new Font("Century Gothic", Font.BOLD, 16));
 		btnSave.setBounds(113, 378, 107, 29);
