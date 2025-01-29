@@ -3,6 +3,12 @@ package AGOS.PROJECT;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -132,6 +138,8 @@ public class passengerDashboard extends JFrame implements ActionListener {
 
         // Default content (Schedule Preview)
         showScheduleView();
+        
+        mtdLoadDataFromDB();
 
         // Make the frame visible
         setVisible(true);
@@ -455,6 +463,36 @@ public class passengerDashboard extends JFrame implements ActionListener {
             showFerryStations();
         } else if (e.getSource() == helpButton) {
             showHelp();   
+        }
+    }
+    
+    private void mtdLoadDataFromDB() {
+    	try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+            //this is my local host if error, please install one 					"my db"		"user", "password"
+
+            String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";;
+            PreparedStatement stmt = con.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getString("Trip ID"),
+                    rs.getString("Body No."),
+                    rs.getString("Route"),
+                    rs.getString("Location"),
+                    rs.getString("ETA"),
+                    rs.getString("Seats Available"),
+                    rs.getString("Status")
+                };
+                tableModel.addRow(row);
+            }
+
+            con.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
