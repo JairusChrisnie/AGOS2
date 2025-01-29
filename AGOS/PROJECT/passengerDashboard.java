@@ -23,7 +23,7 @@ public class passengerDashboard extends JFrame implements ActionListener {
     private JTable detailsTable;
     private JScrollPane scrollPane;
 
-    private schedulePreview schedulePreview;
+     private ScheduleManager scheduleManager;
     
     // Table model and data
     private DefaultTableModel tableModel;
@@ -42,9 +42,11 @@ public class passengerDashboard extends JFrame implements ActionListener {
 
     public passengerDashboard() {
         
+        tableModel = new DefaultTableModel(data, columnNames);
+
         ImageIcon imgLOGO = new ImageIcon("agosLogo.png");
         setIconImage(imgLOGO.getImage());
-    
+
         // Frame setup
         setTitle("Passenger Dashboard - Pasig Ferry Information System");
         setSize(1100, 650);
@@ -131,25 +133,8 @@ public class passengerDashboard extends JFrame implements ActionListener {
         contentPanel.setLayout(new BorderLayout());
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        // Initialize the table model
-        tableModel = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        // Default content (Schedule Preview)
-        showScheduleView();
-        
-        mtdLoadDataFromDB();
-
-        // Make the frame visible
-        setVisible(true);
-
-
-        // Initialize the schedule preview
-        schedulePreview = new schedulePreview() {
+        // Initialize the schedule manager
+        scheduleManager = new ScheduleManager() {
             @Override
             public void loadDataFromDB() {
                 try {
@@ -179,13 +164,25 @@ public class passengerDashboard extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
+
+            @Override
+            public void saveDataToDB(DefaultTableModel tableModel) {
+                // Not needed for passenger dashboard
+            }
         };
 
-        // Load data from DB
-        schedulePreview.loadDataFromDB();
+        mtdLoadDataFromDB();
 
         // Show schedule preview
-        schedulePreview.showSchedulePreview(contentPanel);
+        scheduleManager.showSchedulePreview(contentPanel);
+
+        // Default content (Schedule Preview)
+        showScheduleView();
+        
+        
+
+        // Make the frame visible
+        setVisible(true);
 
     }
 
@@ -540,7 +537,7 @@ public class passengerDashboard extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-        new passengerDashboard();
-    }
+//    public static void main(String[] args) {
+//        new passengerDashboard();
+//    }
 }
