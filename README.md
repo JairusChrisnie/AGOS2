@@ -5,117 +5,110 @@
 ## Description 
 **Project AGOS** is a PUP Ferry Terminal Information Management designed to offer centralized and organized information about the ferry’s scheduled trips while implementing the concept of **Abstraction** in Object-Oriented Programming (OOP). This system aims to provide necessary details that will be beneficial for both the **passengers** and the **ferry’s operators**.
 
-## Installation Instructions
+---
 
-### Prerequisite
-Here are the following programs you’ll need to run the program:
+## Table of Contents  
+- [Overview](#overview)  
+- [Features](#features)  
+- [Installation](#installation)  
+- [Usage](#usage)  
+- [Contributing](#contributing)  
+- [License](#license)  
+- [Acknowledgments](#acknowledgments)  
 
-- **Java Development Kit (JDK)**  
-  [Download JDK](https://www.oracle.com/ph/java/technologies/downloads/)
-  
-- **Visual Studio Code (VS Code)**  
-  With Java Extensions installed  
-  [Download VS Code](https://code.visualstudio.com/download)
+---
 
-- **Eclipse**  
-  [Download Eclipse](https://www.eclipse.org/downloads/)
+## Overview  
+The **Pasig Ferry Information System** is a desktop application designed to streamline ferry schedule management for administrators and provide real-time schedule access for passengers. Built with Java Swing and MySQL, it offers:  
+- **Admin Dashboard**: Manage ferry trips, add passengers, and edit schedules.  
+- **Passenger Dashboard**: View schedules, station maps, and emergency contacts.  
 
-After making sure the mentioned software is installed, you can now proceed to running the code. 
+---
 
-### Using VS Code
-To use VS Code to run the program, follow the steps below:
-1. Clone the repository from GitHub.
-2. Open VS Code and load the project folder.
-3. You can use either of the two main ways to run the program:
-   - **Using the terminal**:  
-     Once the terminal is open, compile the Java files using `javac`.  
-     Run the application afterwards.
-   - **Using the Run and Debug button**:  
-     Click the **Run and Debug** button to run the program directly in VS Code.
+## Features ✨  
+### **Admin Dashboard**  
+- 📅 Add, edit, or delete ferry trips.  
+- 👥 Register passenger details for specific trips.  
+- 🔄 Auto-generate unique Trip IDs based on route (Upstream/Downstream).  
+- 🗃️ Archive deleted trips and passenger data.  
 
-### Using Eclipse
-If you are using Eclipse, follow these steps to run the program:
+### **Passenger Dashboard**  
+- 🚤 View real-time ferry schedules.  
+- 🗺️ Access station maps and route information.  
+- 🆘 Emergency contacts and system FAQs.  
 
-## Usage
+---
 
-### **Choose**
-Whether the user is an **admin** or **passenger**.  
-- If **admin**, they will be redirected to the admin portal.  
-- If **passenger**, they will be redirected to the passenger view. 
+## Installation 🛠️  
+### **Prerequisites**  
+- Java JDK 8+  
+- MySQL Server  
+- MySQL Connector/J (included in the `lib` folder)  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/welcomeAgos.png?raw=true) 
+### **Steps**  
+1. **Clone the Repository**  
+   ```bash  
+   git clone https://github.com/your-username/pasig-ferry-system.git   
 
-### **Admin**
-If the user is an **admin**, click the admin option and enter the required credentials.  
-Upon successful login, the admin can access and preview the current ferry schedule.  
-The admin is prompted with the option to **add/edit**.  
+2. **Set Up the Database**  
+   - Create a MySQL database named `ferryDB`.  
+   - Run the provided SQL script (`ferry_schema.sql`) to create tables.  
 
-### **Add/Edit Schedule**
-If the admin selects ‘add/edit’ to revise the ferry’s schedule, they will be directed to a new section/table with additional options:  
-- **Add Row**  
-- **Delete**  
-- **Edit**  
-- **Add Passenger**  
-- **Save**  
+3. **Configure Database Credentials**  
+   Update the JDBC connection details in:  
+   - `adminDB.java`  
+   - `PassengerInformation.java`  
+   - `passengerDashboard.java`  
+   ```java  
+   // Example: Change credentials if needed  
+   Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");  
+   ```  
 
-#### **Add Row**
-The admin can add rows to insert necessary details (_Trip ID, Body No, Route, Location, Estimated Time of Arrival, Seats Available, and Status_) in the system.  
+4. **Run the Application**  
+   Compile and execute the `loginPage.java` file.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminAdd.png?raw=true)
+---
 
-#### **Delete**
-The admin can select and delete existing rows that are no longer needed. A confirmation prompt will be implemented.  
+## Usage 🖥️  
+1. **Launch the Application**  
+   - Run `loginPage.java` to start the system.  
 
-![image alt](https://github.com/user-attachments/assets/2b9230ab-2385-4163-908c-7b711e18bd7b)
+2. **Admin Login**  
+   - **Username**: `adminPUP`  
+   - **Password**: `passwordPUP`  
+   - Manage trips, add passengers, and save changes to the database.  
 
-#### **Edit**
-The admin can modify the information in existing rows, such as editing the ETA, Seats Available, and Status.  
+3. **Passenger Access**  
+   - Click the **Passenger** button on the welcome screen to view schedules and station info.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminEdit.png?raw=true)
+![Admin Dashboard Preview](screenshots/admin-dashboard.png) *Replace with actual screenshot*  
 
-#### **Add Passenger**
-Upon clicking, an information panel will appear. The admin can now proceed to input passenger information.  
+---
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerAddInfo.png?raw=true)
+## Contributing 🤝  
+Contributions are welcome!  
+1. Fork the repository.  
+2. Create a feature branch:  
+   ```bash  
+   git checkout -b feature/new-feature  
+   ```  
+3. Commit your changes.  
+4. Push to the branch and open a Pull Request.  
 
-### **Logout**
-Once the admin has finalized the schedule, they can log out of the system.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminLogOut.png?raw=true)
+---
 
-## **Passenger**
-By clicking the **‘Passenger’** button, the passenger can immediately access the current schedule.  
-Other than the **‘Schedule’**, the passenger also has two other options:  
+## License 📄  
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerSched.png?raw=true)
+---
 
-### **Stations** 
-The passenger can acquire a **map** of the Pasig River, complete with each ferry station and the landmarks near them.  
+## Acknowledgments 🙌  
+- Icons from [FlatIcon](https://www.flaticon.com).  
+- MySQL for database management.  
+- Java Swing for the GUI framework.  
 
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerStations.png?raw=true)
-
-#### **Help**
-The passenger is given help and contact information for any **inquiries/emergencies**. Information about the Pasig River Ferry Service is also provided.
-
-![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/passengerHelp.png?raw=true)
-
-## Contributing
-
-Contributions from the community are always welcome! To contribute, follow these instructions:
-
-1. **Fork the repository** – This creates a personal copy of the code on your own GitHub account for development.
-2. **Create a new branch** – This ensures that adding new features or codes won’t conflict with the main codebase.
-3. **Make the fix/Add the feature** – Implement your changes and commit them with messages.
-4. **Push to the branch** – Upload your changes to your forked repository.
-5. **Submit a pull request** – This makes a request to the project managers for merging your forked repository to the main repository for review.
-
-The project managers thank the future developers who continue to improve this project!
-
-## License
-
-This project is licensed under the MIT License - see the [MIT LICENSE](https://github.com/JairusChrisnie/AGOS2/blob/master/MIT%20License.txt) file for details.
-
-## Acknowledgement
+---
 
 **Prof. Chris Piamonte**: Special thanks to our professor for their guidance, advice, and support throughout the development of this project. The developers of this project would forever cherish the lessons — both academic and life lessons — that they have imparted throughout the semester.
 
@@ -131,6 +124,11 @@ With countless late nights and tireless endeavours, the team worked hard to ensu
 
 
 ![image](https://github.com/user-attachments/assets/ec826ba1-2acd-413b-a659-33fa33ff78fb)
+---
+
+**Contact**  
+For questions or support, email: [your-email@example.com](mailto:your-email@example.com)  
+``` 
 
 
 
