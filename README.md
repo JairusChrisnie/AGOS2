@@ -25,6 +25,8 @@ If the admin selects ‘add/edit’ to revise the ferry’s schedule, they will 
 #### **Add Row**
 The admin can add rows to insert necessary details (_Trip ID, Body No, Route, Location, Estimated Time of Arrival, Seats Available, and Status_) in the system.  
 
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminAdd.png?raw=true)
+
 #### **Delete**
 The admin can select and delete existing rows that are no longer needed. A confirmation prompt will be implemented.  
 
