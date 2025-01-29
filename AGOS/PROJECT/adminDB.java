@@ -1,4 +1,4 @@
-package AGOS.PROJECT;
+//package AGOS.PROJECT;
 
 import java.awt.*; 
 import java.awt.event.ActionEvent;
@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 
-public class adminDB extends JFrame implements ActionListener {
+public class adminDB extends JFrame implements ActionListener{
 
     // Components for the dashboard
     private JPanel mainPanel, headerPanel, sidebarPanel, contentPanel;
@@ -41,7 +41,7 @@ public class adminDB extends JFrame implements ActionListener {
     private final Color COLOR_6 = new Color(78, 128, 193); // #4e80c1
     private final Color COLOR_7 = new Color(151, 180, 220); // #97b4dc
     
-
+    private schedulePreview schedulePreview;
 
     public adminDB(JPanel mainPanel, JPanel headerPanel, JPanel sidebarPanel, JPanel contentPanel, JButton scheduleButton, JButton addEditButton, JButton logoutButton, JLabel logoLabel, JLabel titleLabel, JTable detailsTable, JScrollPane scrollPane, DefaultTableModel tableModel) throws HeadlessException {
         this.mainPanel = mainPanel;
@@ -56,7 +56,47 @@ public class adminDB extends JFrame implements ActionListener {
         this.detailsTable = detailsTable;
         this.scrollPane = scrollPane;
         this.tableModel = tableModel;
-    }
+
+        // Initialize the schedule preview
+        schedulePreview = new schedulePreview() {
+            @Override
+            public void loadDataFromDB() {
+                try {
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+
+                    String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";
+                    PreparedStatement stmt = con.prepareStatement(query);
+                    ResultSet rs = stmt.executeQuery();
+
+                    while (rs.next()) {
+                        Object[] row = {
+                            rs.getString("Trip ID"),
+                            rs.getString("Body No."),
+                            rs.getString("Route"),
+                            rs.getString("Location"),
+                            rs.getString("ETA"),
+                            rs.getString("Seats Available"),
+                            rs.getString("Status")
+                        };
+                        tableModel.addRow(row);
+                    }
+
+                    con.close();
+                } catch (ClassNotFoundException | SQLException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+
+        // Load data from DB
+        schedulePreview.loadDataFromDB();
+
+        // Show schedule preview
+        schedulePreview.showSchedulePreview(contentPanel);
+        }
+
 
     
     
@@ -257,6 +297,7 @@ public class adminDB extends JFrame implements ActionListener {
         contentPanel.repaint();
     }
 
+
     // Method to show Add/Edit Details
     private void showAddEditDetails() {
         contentPanel.removeAll();
@@ -348,7 +389,7 @@ public class adminDB extends JFrame implements ActionListener {
         	int selectedRow = detailsTable.getSelectedRow();
             if (selectedRow != -1) {
             	String tripID = (String) detailsTable.getValueAt(selectedRow, 0); // Get the TripID of the selected row
-	            new PassengerInformation(tripID);
+	            new passengerInformation(tripID);
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a row to add passengers!", "Error", JOptionPane.ERROR_MESSAGE);
             }

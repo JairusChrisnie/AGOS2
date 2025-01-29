@@ -1,4 +1,5 @@
-package AGOS.PROJECT;
+
+//package AGOS.PROJECT;
 
 import javax.swing.*; 
 import java.awt.*;

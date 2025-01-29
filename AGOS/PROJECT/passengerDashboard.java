@@ -1,4 +1,5 @@
-package AGOS.PROJECT;
+
+//package AGOS.PROJECT;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,6 +23,8 @@ public class passengerDashboard extends JFrame implements ActionListener {
     private JTable detailsTable;
     private JScrollPane scrollPane;
 
+    private schedulePreview schedulePreview;
+    
     // Table model and data
     private DefaultTableModel tableModel;
     private String[] columnNames = {"Trip ID", "Body No.", "Route", "Location", "ETA", "Seats Available", "Status"};
@@ -143,6 +146,47 @@ public class passengerDashboard extends JFrame implements ActionListener {
 
         // Make the frame visible
         setVisible(true);
+
+
+        // Initialize the schedule preview
+        schedulePreview = new schedulePreview() {
+            @Override
+            public void loadDataFromDB() {
+                try {
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+
+                    String query = "SELECT * FROM ferryTABLE ORDER BY created_at ASC";
+                    PreparedStatement stmt = con.prepareStatement(query);
+                    ResultSet rs = stmt.executeQuery();
+
+                    while (rs.next()) {
+                        Object[] row = {
+                            rs.getString("Trip ID"),
+                            rs.getString("Body No."),
+                            rs.getString("Route"),
+                            rs.getString("Location"),
+                            rs.getString("ETA"),
+                            rs.getString("Seats Available"),
+                            rs.getString("Status")
+                        };
+                        tableModel.addRow(row);
+                    }
+
+                    con.close();
+                } catch (ClassNotFoundException | SQLException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+
+        // Load data from DB
+        schedulePreview.loadDataFromDB();
+
+        // Show schedule preview
+        schedulePreview.showSchedulePreview(contentPanel);
+
     }
 
     // Method to create styled sidebar buttons
