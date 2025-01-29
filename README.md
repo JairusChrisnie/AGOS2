@@ -5,6 +5,36 @@
 ## Description 
 **Project AGOS** is a PUP Ferry Terminal Information Management designed to offer centralized and organized information about the ferry’s scheduled trips while implementing the concept of **Abstraction** in Object-Oriented Programming (OOP). This system aims to provide necessary details that will be beneficial for both the **passengers** and the **ferry’s operators**.
 
+## Installation Instructions
+
+### Prerequisite
+Here are the following programs you’ll need to run the program:
+
+- **Java Development Kit (JDK)**  
+  [Download JDK](https://www.oracle.com/ph/java/technologies/downloads/)
+  
+- **Visual Studio Code (VS Code)**  
+  With Java Extensions installed  
+  [Download VS Code](https://code.visualstudio.com/download)
+
+- **Eclipse**  
+  [Download Eclipse](https://www.eclipse.org/downloads/)
+
+After making sure the mentioned software is installed, you can now proceed to running the code. 
+
+### Using VS Code
+To use VS Code to run the program, follow the steps below:
+1. Clone the repository from GitHub.
+2. Open VS Code and load the project folder.
+3. You can use either of the two main ways to run the program:
+   - **Using the terminal**:  
+     Once the terminal is open, compile the Java files using `javac`.  
+     Run the application afterwards.
+   - **Using the Run and Debug button**:  
+     Click the **Run and Debug** button to run the program directly in VS Code.
+
+### Using Eclipse
+If you are using Eclipse, follow these steps to run the program:
 
 ## Usage
 
