@@ -120,10 +120,11 @@ public class PassengerInformation extends JFrame {
 		cmbLocation.setBounds(151,310,217,27);
 		contentPane.add(cmbLocation);
 			
-		JButton btnSave = new JButton("Save");
+		JButton btnSave = new JButton("Save"); 
 		btnSave.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 		        if (e.getSource() == btnSave) {
+		        	
 		            // Get input values
 		            String name = txtName.getText().trim();
 		            String age = txtAge.getText().trim();
