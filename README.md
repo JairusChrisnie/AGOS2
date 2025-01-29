@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/45623c36-59dd-4e5d-ad40-ffc5675d99b6)# AGOS: A PUP Ferry Terminal Information Management
+# AGOS: A PUP Ferry Terminal Information Management
 
 ## Description 
 **Project AGOS** is a PUP Ferry Terminal Information Management designed to offer centralized and organized information about the ferry’s scheduled trips while implementing the concept of **Abstraction** in Object-Oriented Programming (OOP). This system aims to provide necessary details that will be beneficial for both the **passengers** and the **ferry’s operators**.
@@ -38,6 +38,7 @@ The admin can select and delete existing rows that are no longer needed. A confi
 
 #### **Edit**
 The admin can modify the information in existing rows, such as editing the ETA, Seats Available, and Status.  
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminEdit.png?raw=true)
 
 #### **Add Passenger**
 Upon clicking, an information panel will appear. The admin can now proceed to input passenger information.  
