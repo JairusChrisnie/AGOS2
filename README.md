@@ -7,7 +7,7 @@ Whether the user is an **admin** or **passenger**.
 - If **admin**, they will be redirected to the admin portal.  
 - If **passenger**, they will be redirected to the passenger view. 
 
-![image alt]() 
+![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/welcomeAgos.png?raw=true) 
 
 ### **Admin**
 If the user is an **admin**, click the admin option and enter the required credentials.  
