@@ -578,6 +578,7 @@ public class adminDB extends JFrame implements ActionListener {
             int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Logout", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 //saveData(); // Save data before exiting
+            	new loginPage();
                 dispose(); // Close the dashboard
                 //new LoginFrame(); // Replace LoginFrame with your actual login class
             }
@@ -608,37 +609,42 @@ public class adminDB extends JFrame implements ActionListener {
             });
         }
     
-  //Generates a unique Trip ID by checking the database if the counter is already present or not.
-    private String generateUniqueTripID(String prefix, int counter) {
-        String tripID;
-        boolean isUnique = false;
+     // Generates a unique Trip ID by checking the database if the counter is already present or not.
+        private String generateUniqueTripID(String prefix, int counter) {
+            String tripID;
+            boolean isUnique = false;
 
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
-             PreparedStatement checkStmt = con.prepareStatement("SELECT COUNT(*) FROM ferryTABLE WHERE `Trip ID` = ?")) {
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ferryDB", "root", "root");
+                 PreparedStatement checkStmt = con.prepareStatement("SELECT COUNT(*) FROM ferryTABLE WHERE `Trip ID` = ?");
+                 PreparedStatement checkStmtDeletedTrips = con.prepareStatement("SELECT COUNT(*) FROM ferryDeletedTrip WHERE `Trip ID` = ?")) {
 
-            while (!isUnique) {
-                tripID = prefix + String.format("%04d", counter);
-                checkStmt.setString(1, tripID);
+                while (!isUnique) {
+                    tripID = prefix + String.format("%04d", counter);
+                    checkStmt.setString(1, tripID);
+                    checkStmtDeletedTrips.setString(1, tripID);
 
-                try (ResultSet rs = checkStmt.executeQuery()) {
-                    rs.next();
-                    int count = rs.getInt(1);
+                    try (ResultSet rs1 = checkStmt.executeQuery();
+                         ResultSet rs2 = checkStmtDeletedTrips.executeQuery()) {
+                        rs1.next();
+                        rs2.next();
+                        int count1 = rs1.getInt(1);
+                        int count2 = rs2.getInt(1);
 
-                    if (count == 0) {
-                        isUnique = true; // Trip ID is unique
-                    } else {
-                        counter++; // Increment counter to generate a new Trip ID
+                        if (count1 == 0 && count2 == 0) {
+                            isUnique = true; // Trip ID is unique in both tables
+                        } else {
+                            counter++; // Increment counter to generate a new Trip ID
+                        }
                     }
                 }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(null, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                return null; // Return null if an error occurs
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            return null; // Return null if an error occurs
-        }
 
-        return prefix + String.format("%04d", counter);
-    }
+            return prefix + String.format("%04d", counter);
+        }
 }
 
     // Custom ComboBox Editor for Location column
