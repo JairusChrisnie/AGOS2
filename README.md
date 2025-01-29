@@ -100,7 +100,7 @@ Contributions are welcome!
 ---
 
 ## License 📄  
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.  
+This project is licensed under the **MIT License**. See [LICENSE](https://github.com/JairusChrisnie/AGOS2/blob/master/MIT%20License.txt) for details.  
 
 ---
 
