@@ -49,4 +49,5 @@ Upon clicking, an information panel will appear. The admin can now proceed to in
 
 ### **Logout**
 Once the admin has finalized the schedule, they can log out of the system.  
+
 ![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminLogOut.png?raw=true)
