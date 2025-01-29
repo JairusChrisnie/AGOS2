@@ -39,10 +39,12 @@ The admin can select and delete existing rows that are no longer needed. A confi
 
 #### **Edit**
 The admin can modify the information in existing rows, such as editing the ETA, Seats Available, and Status.  
+
 ![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminEdit.png?raw=true)
 
 #### **Add Passenger**
 Upon clicking, an information panel will appear. The admin can now proceed to input passenger information.  
+
 ![image alt](https://github.com/JairusChrisnie/AGOS2/blob/master/adminLogOut.png?raw=true)
 
 ### **Logout**
