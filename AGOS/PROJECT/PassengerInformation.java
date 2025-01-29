@@ -1,4 +1,4 @@
-package AGOS.PROJECT;
+//package AGOS.PROJECT;
 
 import java.awt.EventQueue;
 
@@ -125,8 +125,6 @@ public class PassengerInformation extends JFrame {
 		genderButton.add(rdbtnFemale);
 		genderButton.add(rdbtnOthers);
 		
-		
-		
 		String[] arrRoute = {"Select Destination", "Quinta", "Lawton", "Escolta", "Sta. Ana", "Lambingan", "Valenzuela", "Hulo", "Guadalupe", "San Joaquin", "Kalawaan"};
 		cmbLocation = new JComboBox<>(arrRoute);
 		cmbLocation.setBounds(151,310,217,27);
@@ -134,7 +132,7 @@ public class PassengerInformation extends JFrame {
 ;			
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
 				if(e.getSource()== btnSave) {
 					getPassengerData();
 				}
